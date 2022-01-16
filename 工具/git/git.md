@@ -198,10 +198,65 @@ doc/**/*.txt
 来源：掘金
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
+# 7. 复杂操作
 
+## [push大文件(exceeds 100MB)](https://cdmana.com/2021/12/20211205122736401k.html)
 
-
+**开启LFS功能**
 
 ```bash
-git config lfs.https://github.com/Athement/md_notes.git/info/lfs.locksverify false
+$ cd xxx #'xxx'是你本地仓库目录
+# 只需执行一次即可开启lfs功能
+$ git lfs install
 ```
+
+**选择文件类型**
+
+设置LFS要管理的文件类型
+
+```bash
+#因为我是pth模型文件过大，所以我的命令是*.pth，此处需要根据自己情况设定类型
+$ git lfs track "*.pth"
+```
+
+**配置远程仓库**
+
+执行完上面的命令后，会生成一个`.gitattributes`文件，要将其上传到远程gitee仓库。这里我把`.gitattributes`和大文件分开上传。
+
+```bash
+$ git add .gitattributes
+$ git commit -m '提交 .gitattributes 文件'
+$ git push origin master（如果提交不了，后面可以加一个-f）
+```
+
+**上传大文件**
+
+```bash
+$ git add ./Models #我的大文件全在Models文件夹下，根据自己情况更改
+$ git commit -m "upload Models"
+$ git push origin master -f
+```
+
+**报LFS错**
+
+在执行上面的最后一步上传命令的时候可能会报两个错误:
+
+```bash
+WARNING: Authentication error: Authentication required: LFS only supported repository in paid enterprise.
+batch response: LFS only supported repository in paid enterprise.
+```
+
+第一个错误可以执行以下命令：
+
+```bash
+git config lfs.https://gitee.com/{
+    your_gitee}/{
+    your_repo}.git/info/lfs.locksverify false
+```
+
+**注：** 命令中的{your_gitee}/{your_repo}是你的远程仓库地址，根据自己情况替换。
+
+第二个错误可以尝试删除`./git/hooks/pre-push`文件
+
+最后重新push一下即可。
+
