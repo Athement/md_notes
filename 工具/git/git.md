@@ -145,7 +145,7 @@ Git 使用的标签有两种类型：**轻量级的（lightweight）和含附注
 
 3. 本地新建分支关联远端分支
 
-   `git branch --set-upstream-to [remote-name]/[branch-name]`
+   `git branch --set-upstream-to=[remote-name]/[branch-name]`
 
 4. 从远程仓库中抓取本地仓库中没有的更新：`git fetch [remote-name]`，如`git fetch origin`;使用fetch只是将远端数据拉到本地仓库，并不自动合并到当前工作分支，只能人工合并。如果设置了某个分支关联到远程仓库的某个分支的话，可以使用`git pull`来拉去远程分支的数据，然后将远端分支自动合并到本地仓库中的当前分支；
 
@@ -193,14 +193,20 @@ doc/*.txt
 doc/**/*.txt
 ```
 
-作者：你听___
-链接：https://juejin.cn/post/6844903598522908686
-来源：掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+**更新忽略文件**
 
-# 7. 复杂操作
+```git
+# 注意有个点“.”
+git rm -r --cached .
+git add -A
+git commit -m "update .gitignore"
+```
 
-## [push大文件(exceeds 100MB)](https://cdmana.com/2021/12/20211205122736401k.html)
+
+
+# 7. 其他操作
+
+### [push大文件(exceeds 100MB)](https://cdmana.com/2021/12/20211205122736401k.html)
 
 **开启LFS功能**
 
@@ -260,3 +266,30 @@ git config lfs.https://gitee.com/{
 
 最后重新push一下即可。
 
+### [git reset](https://blog.csdn.net/u013064585/article/details/94831107)
+
+git reset 包括--soft，--mixed，--hard三种模式
+
+|                 | 工作区 | 暂存区 | 快照区 |
+| --------------- | ------ | ------ | ------ |
+| --soft          |        |        | 撤销   |
+| --mixed（默认） |        | 撤销   | 撤销   |
+| --hard          | 撤销   | 撤销   | 撤销   |
+
+**git reset --soft**
+
+仅撤销工作区提交，本地目录和暂存区内容不变
+
+<img src="assets/2019070612010878.png" alt="在这里插入图片描述" style="zoom: 67%;" />
+
+**git reset --mixed(默认)**
+
+撤销工作区提交和暂存区修改，本地目录内容不变
+
+<img src="assets/20190706123456362.png" alt="在这里插入图片描述" style="zoom:67%;" />
+
+**git reset --hard**
+
+撤销工作区提交，暂存区和本地目录内容修改
+
+<img src="assets/20190706124720350.png" alt="在这里插入图片描述" style="zoom:67%;" />

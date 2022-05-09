@@ -22,11 +22,29 @@
 
 **线段树作用**
 
-线段树可以在线维护修改、查询区间上的最值，求和。
+线段树可以在线**修改**、**查询区间**上的最值，求和。
 
 一维线段树可以扩充到二维线段树（矩阵树）和三维线段树（空间树）。
 
 对于一维线段树来说，每次更新以及查询的时间复杂度为O(logN)
+
+**线段树问题要求**
+
+1. 查询区间
+
+​	若$节点区间\subseteq查询区间$：直接返回节点区间结果
+
+​	若$节点区间\nsubseteq查询区间$：继续查询节点区间的两个子区间，并合并结果
+
+​	合并结果时，要求<font color='red'>合并操作符合结合律</font>
+
+2. 区间更新
+
+​    为避免每次更新都更新叶子节点，可设置一个懒更新数组记录节点区间需要更新的值，并把更新操作推迟到子区间查询，合并多个更新操作。
+
+$$seg[parent]*lazy[parent]=seg[child1]*lazy[child1]+...+seg[childn]*lazy[childn] \\+为区间合并操作\\*为懒更新操作$$
+
+<font color='red'>懒更新操作和区间合并操作需要符合分配律</font>
 
 **线段树和其他RMQ算法的区别**
 
@@ -55,6 +73,16 @@
 > update用于更新指定索引的值，同时更新相关的线段树节点，需要pushUp来更新父节点
 >
 > pushDown一般用于区间更新，将区间子节点的更新延迟到子节点查询
+
+#### 数组操作（zwk线段树）
+
+利用数组结构表示线段树，便于处理区间索引范围相关统计的问题
+
+> 例如，数组arr={1,8,6,4,3,5}，获取指定索引区间最大值，如求索引位置[1,3]的最大值是8
+
+若求其他更加通用的统计问题，简单的数组结构则不再满足，需要使用树结构来处理
+
+> 数组arr={1,8,6,4,3,5}，获取指定数值区间个数，如求arr在[2,7]范围内的个数是4
 
 **问题描述**
 
@@ -146,6 +174,8 @@ void updata(int p,int v,int l,int r,int k){    //p为下标，v为要加上的�
 
 > 点更新类似二叉搜索树的搜索过程，不过更新子节点后需要通过pushUp对父节点进行同步更新
 
+##### 懒更新
+
 **update区间更新**
 
 ```java
@@ -182,6 +212,8 @@ lazy标签的作用：
 > 对于一个区间[L,R]来说，我们可能每次都更新区间中的每个值，那样的话更新的复杂度将会是O(NlogN)。
 >
 > 为了降低区间更新的复杂度，线段树将每个值的更新延迟至查询该节点的时机(**延迟更新不影响使用**)，并且没有增加查询的时间复杂度
+>
+> 一个节点有lazy标签，表示该节点的**子节点**未更新，而更新内容就保存在lazy标签中。
 
 pushDown作用：
 
@@ -224,7 +256,145 @@ query分析：
 
 > 在查询子区间前，先判断是否带有lazy标签，若有则需先更新子节点再进行下一步操作。
 
+#### 树操作
+
+再看数组操作的问题
+
+> 数组arr={1,8,6,4,3,5}，获取指定数值区间最大值，如求arr在[1,7]范围内的最大值是6
+
+首先对数组进行排序，得到有序数组sortedArr={1,3,4,5,6,8}，之后根据sortedArr构建线段树
+
+<img src="assets/image-20220506162224961.png" alt="image-20220506162224961" style="zoom:50%;" />
+
+```java
+public class SegmentTree{
+    public int query(Node  node, int l, int r) {
+        if(l<=node.lb&&r>=node.rb){// return result if range of node in [l,r]
+            return node.count;
+        }else if(l>node.rb||r<node.lb){// return 0 if range of node doesn't intersect [l,r]
+            return 0;
+        }else{// query in the children of node
+            if(node.left!=null&&node.right!=null){
+                return query(node.left,l,r)+query(node.right,l,r);
+            }else{
+                return 0;
+            }
+
+        }
+    }
+    
+    private void pushup(Node node) {
+        // update count
+        node.count=node.left.count+node.right.count;
+    }
+    
+	private Node build(long[] arr,int l,int r) {
+        Node node = new Node();
+        if(l==r){// build the leaf node
+            node.lb=arr[l];
+            node.rb=arr[r];
+            node.count=1;
+            return node;
+        }
+        int m=l+((r-l)>>1);
+        // build the left child and right child
+        node.left=build(arr,l,m);
+        node.right=build(arr,m+1,r);
+        // update child
+        node.lb= node.left.lb;
+        node.rb= node.right.rb;
+        pushup(node);
+        return node;
+    }
+
+    class Node{
+        Node left;
+        Node right;
+        long lb;
+        long rb;
+        int count;
+    }
+}
+```
+
+**数组线段树操作**
+
+若执意要使用数组线段树实现问题，则需要对分散的数据进行离散化处理，将数值离散化连续的索引。
+
+> 数组arr={1,8,6,4,3,5}，获取指定数值区间最大值，如求arr在[1,7]范围内的最大值是6
+
+- 离散化
+
+```java
+public int queryRange(int[] sortedArr,int lb,int rb){
+    Map<Integer> tm=new TreeMap<>();
+    // 离散化
+    for(int i=0;i<sortedArr.length;i++){
+        tm.put{sortedArr[i],i};
+    }
+    int len=tm.size();
+    int seg[]=new int[len<<2];
+
+    for(int n:sortedArr){
+        update(tm.get(n),1,1,n,0);
+    }
+    //获取离散化后的边界
+    int left=tm.ceilingKey(lb);
+    int right=tm.floorKey(rb);
+    
+    return query(left,right,0,len-1,1);
+}
+
+public update(int idx,int val,int l,int r,int k){
+    if(l==r){
+        seg[k]+=val;
+    }else{
+        int m=l+((r-l)>>1);
+        if(idx<=m){
+            update(idx,val,l,m,k<<1);
+        }else{
+            update(idx,val,m+1,r,k<<1|1);
+        }
+        pushup(k);
+    }
+}
+
+public int query(int left,int right,int l,int r,int k){
+    if(left<=l&&right>=r){
+        return seg[k];
+    }else{
+        int res=0;
+        int m=l+((r-l)>>1);
+        if(left<=m){
+            res+=query(left,right,l,m,k<<1);
+        }
+        if(right>=m+1){
+            res+=query(left,right,m+1,r,k<<1|);
+        }
+        return res;
+    }
+}
+
+public void pushup(int k){
+    seg[k]=seg[k<<1]+seg[k<<1|1];
+}
+```
+
+**线段树更新**
+
+在数组线段树和之前提到的树型线段树中，线段树的结构在初始时就确定了，不能再改变。对于不适合解决结构变化的区间查询问题
+
+> 给定一个顺序链表lst，偶尔在lst中添加数据，并需要频繁进行区间值个数查询，该如何实现
+
+对于以上问题，由于初始链表数据个数不确定，不能构造普通的线段树。但可以动态构造**平衡树线段树**，但设计平衡操作，比较麻烦。
+
 ## [树状数组](https://blog.csdn.net/FlushHip/article/details/79165701)
+
+参考链接：
+
+https://blog.csdn.net/iwts_24/article/details/82497026
+
+https://blog.csdn.net/FlushHip/article/details/79165701
 
 ### 树状数组概念
 
@@ -254,36 +424,44 @@ int lowbit(int x){
 }
 ```
 
-**查询前缀和**
-
-```java
-int sum(int x, int[] c, int n)
-{
-    int ret = 0;
-    for ( ; x > 0; ret += c[x], x -= lowbit(x));
-    return ret;
-}
-```
-
-**单点更新**
-
-```java
-void update(int x, int val, int[] c)
-{
-    for ( ; x < c.length; c[x] += val, x += lowbit(x));
-}
-```
-
-**构建树状数组**
+**构造树状数组**
 
 ```java
 int[] build(int[] arr){
+    // build bitTree from 1, convenient for & operation 
 	int[] c=new int[arr.length+1];
     for(int i=1;i<c.length;i++){
         update(i,arr[i-1],c);
     }
 }
 ```
+
+**查询区间和**
+
+```java
+int sum(int l,int r, int[] c){
+    int ret = 0;
+    // get preSum ahead of r
+    for ( ; r > 0; ret += c[r], r -= lowbit(r));
+    // get preSum ahead of l, then substract it from ret
+    for ( ; l > 0; ret -= c[l], l -= lowbit(l));
+    return ret;
+}
+```
+
+for循环操作：获取的是前序和
+
+**单点更新**
+
+```java
+void update(int x, int val, int[] c){
+    for ( ; x < c.length; c[x] += val, x += lowbit(x));
+}
+```
+
+单点更新一次更新多个位置，即c数组中包含了当前arr数组被更新索引位置的所有索引位置，例如arr[3]->c[3,4,8]
+
+<img src="assets/20180907154206734" alt="img" style="zoom: 67%;" />
 
 ### 树状数组与线段树的异同
 
@@ -303,7 +481,55 @@ int[] build(int[] arr){
 
 差异详见：
 
-<img src="assets/image-20210215225948028.png" alt="image-20210215225948028" style="zoom:67%;" />
+<img src="assets/image-20210215225948028.png" alt="image-20210215225948028" style="zoom: 50%;" />
+
+幺半群
+
+<img src="assets/image-20220507164843774.png" alt="image-20220507164843774" style="zoom:50%;" />
+
+交换群
+
+<img src="assets/image-20220507164617619.png" alt="image-20220507164617619" style="zoom:50%;" />
+
+在进行区间和查询时，树状数组实际是进行了一个减法操作，即与逆元运算。
+
+> 求区间[3,7]，实际计算的是c[7]+(-c[3])
+
+支持逆元操作的问题
+
+- 区间和
+- 区间xor和
+
+不支持逆元的操作
+
+- 求区间最值
+
+### [树状数组求最值](https://blog.csdn.net/qq_41661809/article/details/86667055)
+
+<img src="assets/20180907154206734" alt="img" style="zoom: 67%;" />
+
+由于求最值操作不是可逆操作（不存在逆元），所以不能通过区间相减获得，但可以拆分为多个区间相加.
+
+> 对于区间[4,7],可分解为max{arr[4],c[6],c[7]}
+
+具体代码如下
+
+```java
+若y-lowbit(y) > x，则query(x,y) = max( c[y] , query(x, y-lowbit(y)));
+若y-lowbit(y) <=x，则query(x,y) = max( arr[y] , query(x, y-1);
+int query(int x, int y){
+	int ans = 0;
+	while (y >= x){
+		ans = max(arr[y], ans);
+		y --;
+		for (; y-lowbit(y) >= x; y -= lowbit(y))
+			ans = max(c[y], ans);
+	}
+	return ans;
+}
+```
+
+以上操作的时间复杂度**(log<sup>n</sup>)<sup>2</sup>**
 
 ## 问题记录
 
@@ -320,9 +546,134 @@ int[] build(int[] arr){
 
 **解题思路（数组）**
 
-使用sum数组统计从开始到当前索引的和，如sum[i]=arr[0]+...+arr[i].
+使用sum数组统计从开始到当前索引的和，如sum[i+1]=arr[0]+...+arr[i].
 
-range[i,j]=sum[j]-sum[i]+arr[i];
+range[i,j]=sum[j+1]-sum[i];
+
+### 327 区间和个数
+
+**问题描述**
+
+<img src="assets/image-20220505214553346.png" alt="image-20220505214553346" style="zoom: 50%;" />
+
+**暴力解法**
+
+使用前序和数组preSum双层循环遍历，判断以下式子是否成立
+
+$$preSum[j+1]-preSum[i]\in[lower,upper]\quad i<=j$$
+
+若成立，则count++；
+
+**线段树解法**
+
+$$lower\leqslant preSum[j+1]-preSum[i]\leqslant upper \quad i<=j \\ \Rightarrow preSum[j+1]-lower\geqslant preSum[i]\geqslant preSum[j+1]-upper \quad i<=j$$
+
+问题转换为
+
+> 对于索引j，之前有多少个前序和preSum[i]在指定区间中，即区间统计问题
+
+1. 排序
+
+为了找出在j之前有多少个preSum[i]在j区间内，需要先对preSum[i]进行排序
+
+> 例如，在2，3，-1，5，4中多次查找指定区间的值个数，首先也需要排序，再通过二分法找到左右边界对应的索引值，右索引-索引+1便是属于指定区间的个数。若仅仅查询一次，则直接遍历即可。
+
+2. 区间离散化
+
+由于问题是要查找区间和个数，所以线段数中存储的应该是属于区间值的个数，而不是前序和。
+
+为了便于区间查找，preSum的相对顺序不能变，所以使用离散化处理解决问题。
+
+> 例如， 2，3，-1，5，4排序后-1，2，3，4，5；对应的索引为0，1，2，3，4.
+
+3. 先插入preSum[j],在进行更新操作。
+
+对于preSum[j],在线段树中统计$[preSum[j+1]-lower,preSum[j+1]-upper]$区间的个数，之后将preSum加入线段树进行更新操作，**保证了$i<=j$,查询的是j之前的前序和**。
+
+4. 确定叶子节点数
+
+由于线段树是在区间统计前构造好的，而线段树的构造取决于叶子节点的个数，所以首先需要确定叶子节点个数。
+
+- 所有的前序和preSum[j]应该作为叶子节点
+- 对于离散化的数据，在进行区间查询时，查询边界也需要作为叶子节点，否则无法确定边界。
+
+**线段树代码**
+
+```java
+class Solution {
+    //保存前序和i在区间j范围内的个数
+    int[] seg;
+
+    public int countRangeSum(int[] nums, int lower, int upper) {
+        long[] preSum = new long[nums.length + 1];
+        for (int i = 0; i < nums.length; i++) {
+            preSum[i + 1] = preSum[i] + nums[i];
+        }
+
+        TreeSet<Long> ts = new TreeSet<>();
+        //获取前序和以及对应的边界值
+        for (Long i : preSum) {
+            ts.add(i);
+            ts.add(i - lower);
+            ts.add(i - upper);
+        }
+        int len = ts.size();
+        seg = new int[len << 2];
+        HashMap<Long, Integer> helper = new HashMap<>();
+		//离散化处理
+        int idx = 0;
+        for (long i : ts) {
+            helper.put(i, idx++);
+        }
+        int res = 0;
+        for (long x : preSum) {
+            //查询
+            res += query(helper.get(x - upper), helper.get(x - lower), 0, len - 1, 1);
+            //插入更新
+            update(helper.get(x), 1, 0, len - 1, 1);
+        }
+        return res;
+
+    }
+
+    private void pushup(int k) {
+        seg[k] = seg[k << 1] + seg[k << 1 | 1];
+    }
+	//区间更新
+    private void update(int idx, int v, int l, int r, int k) {
+        if (l == r) {
+            seg[k] += v;
+        } else {
+            int m = l + ((r - l) >> 1);
+            if (idx <= m) {
+                update(idx, v, l, m, k << 1);
+            } else {
+                update(idx, v, m + 1, r, k << 1 | 1);
+            }
+            pushup(k);
+        }
+    }
+
+    //区间查询
+    private int query(int left, int right, int l, int r, int k) {
+        if (left <= l && right >= r) {
+            return seg[k];
+        } else {
+            int res = 0;
+            int m = l + ((r - l) >> 1);
+            if (left <= m) {
+                res += query(left, right, l, m, k << 1);
+            }
+            if (right >= m + 1) {
+                res += query(left, right, m + 1, r, k << 1 | 1);
+            }
+            return res;
+        }
+    }
+}
+```
+
+
 
 ### 218 天际线
 
