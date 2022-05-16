@@ -1,6 +1,6 @@
 # 何为缓存
 
-## 1. 简介
+## 简介
 
 在互联网的世界，缓存是一个绕不过的话题。 
 
@@ -8,7 +8,7 @@
 
 随着互联网的快速发展，需要缓存的数据指数级的提升，使用的缓存的容量越来越大。然而缓存的容量不可能无限的提升，并且大容量的缓存同时也带来了一些其他方面的问题，例如缓存的一致性同步和灾备恢复等。那么在有限容量的缓存条件下，如何尽可能的提高缓存的利用率，这就涉及到了缓存算法。
 
-## 2. 缓存
+## 缓存
 
 凡是位于速度相差较大的两种硬件之间，用于<font color='red'>协调两者数据传输速度差异的结构</font>，均可称之为缓存。
 
@@ -27,9 +27,9 @@ Intel Core i7 5500系列各部件的访问速度（主频2.4Ghz，一个cpu周�
 | Local RAM                                 | 60 ns（～140cycles）  |
 | Remote RAM                                | 100 ns（～240cycles） |
 
-对于后端应用开发的同事来说，我们更熟悉的是软件意义上的缓存，例如cdn，nginx缓存，redis，memcache。
+对于后端应用开发的同事来说，我们更熟悉的是软件意义上的缓存，例如**cdn**，nginx缓存，redis，memcache。
 
-### 2.1 缓存命中
+### 缓存命中
 
 当用户发起一个请求，服务端应用接受这个请求。
 
@@ -39,7 +39,7 @@ Intel Core i7 5500系列各部件的访问速度（主频2.4Ghz，一个cpu周�
 缓存的命中率是非常重要的指标，因为回源的代价是高昂的，所以需要尽可能命中缓存，减少回源，充分的发挥缓存的作用。
 
 
-### 2.2 缓存淘汰
+### 缓存淘汰
 
 当缓存的空间仍然有空闲，没有命中的对象会被存储到缓存中来。
 
@@ -60,17 +60,17 @@ Intel Core i7 5500系列各部件的访问速度（主频2.4Ghz，一个cpu周�
 
 也可能是在某一时刻，<font color='red'>缓存大量同时过期</font>。
 
-### 2.5 缓存污染
+### 缓存污染
 
 缓存污染是指将不常用的数据加载到缓存中，降低了缓存的命中率。
 
 例如突然大量偶发性的数据访问，会让缓存中存放大量冷数据，导致热点数据被踢出缓存，无法被命中。
 
-## 3. 缓存算法
+## 缓存算法
 
 类似于操作系统中的页面置换算法，常用的缓存算法有以下几种。
 
-### 3.1 FIFO算法 (First In First out)
+### FIFO算法 (First In First out)
 
 先进先出算法，总是选择淘汰最先写入缓存的数据。
 
@@ -95,7 +95,7 @@ LFU算法并不经常使用，因为需要使用一个计数器来记录和更�
 
 [算法实现](https://zhuanlan.zhihu.com/p/311942904)
 
-### 3.3 LRU算法 (Least Recently Used)
+### LRU算法 (Least Recently Used)
 
 最近最少使用算法，首先被淘最近最少访问的数据。
 
@@ -109,13 +109,13 @@ LRU缓存算法以及它的一系列优化算法是常用的缓存算法，也�
 3：如果要访问的数据已经在缓存中，该数据会被重新移动到队列的头部
 ```
 
-#### 3.3.1 LRU-K算法
+#### LRU-K算法
 
 LRU-K中的K代表最近使用的次数。
 
 主要目的是为了解决LRU算法“缓存污染”的问题，其核心思想是将“最近使用过1次”的判断标准扩展为“最近使用过K次”。
 
-LRU-K需要同时维护<font color='red'>缓存队列</font>和<font color='red'>历史队列</font>，其中历史队列用于记录所有缓存数据被访问的历史频率。只有当历史队列中数据的访问次数达到K次的时候，才将数据放入缓存中。当需要淘汰数据时，LRU-K会淘汰第K次访问时间距当前时间最大的数据。
+LRU-K需要同时维护<font color='red'>缓存队列</font>和<font color='red'>历史队列</font>，其中历史队列用于记录所有缓存数据被访问的历史频率。只有当历史队列中数据的访问次数达到K次的时候，才将数据放入缓存队列中。当需要淘汰数据时，LRU-K会淘汰第K次访问时间距当前时间最大的数据。
 
 ```
 1：新数据加入到访问历史队列
@@ -127,7 +127,7 @@ LRU-K需要同时维护<font color='red'>缓存队列</font>和<font color='red'
 
 LRU-K具有LRU的优点，主要目的：解决LRU算法“缓存污染”的问题，实际应用中LRU-2是综合各种因素后最优的选择，LRU-3或者更大的K值命中率会高，但适应性差，需要大量的数据访问才能将历史访问记录清除掉
 
-#### 3.3.2 Two Queues (2Q)
+#### Two Queues (2Q)
 
 2Q算法类似于LRU-2。
 
@@ -139,7 +139,7 @@ LRU-K具有LRU的优点，主要目的：解决LRU算法“缓存污染”的问
 3. 两个队列各自按照自己的方法淘汰数据
 ```
 
-#### 3.3.3 Multi Queue (MQ)
+#### Multi Queue (MQ)
 
 MQ算法根据访问频率将数据划分为多个队列，不同的队列具有不同的访问优先级，其核心思想是：优先缓存访问次数多的数据。
 
@@ -153,7 +153,7 @@ MQ算法根据访问频率将数据划分为多个队列，不同的队列具有
 5. 需要淘汰数据时，从最低一级队列开始按照LRU淘汰，每个队列淘汰数据时，将数据从缓存中删除，将数据索引加入低一级队列头部
 ```
 
-#### 3.3.4 LRU算法对比
+#### LRU算法对比
 
 | 对比点 | 对比                      |
 | ------ | ------------------------- |
@@ -161,7 +161,7 @@ MQ算法根据访问频率将数据划分为多个队列，不同的队列具有
 | 复杂度 | LRU-2 > MQ(2) > 2Q > LRU  |
 | 代价   | LRU-2  > MQ(2) > 2Q > LRU |
 
-### 3.4 Adjustable Replacement Cache (ARC)
+### Adjustable Replacement Cache (ARC)
 
 标准的LRU淘汰算法无法适应<font color='red'>扫描式的数据访问</font>，容易产生缓存污染。
 
@@ -171,7 +171,7 @@ MQ算法根据访问频率将数据划分为多个队列，不同的队列具有
 
 因此IBM和Sun公司的ZFS中扩展实现实现了一种ARC算法用以解决LRU算法的缺点。
 
-#### 3.4.1  ARC的内部工作原理
+####  ARC的内部工作原理
 
 ARC算法的通过4个队列实现：
 
@@ -181,6 +181,8 @@ ARC算法的通过4个队列实现：
 3. 从最近最少使用的数据队列中淘汰的数据（Ghost list for LRU）
 4. 从最不经常使用的数据队列中淘汰的数据（Ghost list for LFU）
 ```
+
+工作流程
 
 ```
 1. 新数据插入到LRU队列首部
@@ -197,7 +199,7 @@ ARC算法将最近被访问的数据被存储在LRU队列中，经常被访问�
 
 
 
-- ### 3.5  总结
+### 总结
 
 1. LRU缓存对热点数据比较敏感，缓存容量较小时，随机访问命中率很低，各种优化算法影响不大
 
@@ -225,13 +227,13 @@ ARC算法将最近被访问的数据被存储在LRU队列中，经常被访问�
 
 对于缓存来说，数据不常变更且查询比较频繁是最好的场景，如果查询量不够大或者数据变动太频繁，缓存也就是失去了意义。
 
-
+**内部缓存与外部缓存**
 
 日常工作使用的缓存可以分为**内部缓存**和**外部缓存**。
 
-内部缓存一般是指存放在运行实例内部并使用实例内存的缓存，这种缓存可以使用代码直接访问。
+- 内部缓存一般是指存放在运行实例内部并使用实例内存的缓存，这种缓存可以使用代码直接访问。 
 
-外部缓存一般是指存放在运行实例外部的缓存，通常是通过网络获取，反序列化后进行访问。
+- 外部缓存一般是指存放在运行实例外部的缓存，通常是通过网络获取，反序列化后进行访问。 
 
 一般来说对于不需要实例间同步的，都更加推荐内部缓存，因为内部缓存有访问方便，性能好的特点；需要实例间同步的数据可以使用外部缓存。
 
@@ -251,10 +253,15 @@ ARC算法将最近被访问的数据被存储在LRU队列中，经常被访问�
 
 对于字典型的数据，在项目启动的时候加载到 Map 中，程序就可以使用了，也很容易更新。
 
-```
-// 配置存放的MapMap<String, String> configs = new HashMap<String, String>();// 初始化或者刷新配置的Mappublic void reloadConfigs() {
+```java
+// 配置存放的Map
+Map<String, String> configs = new HashMap<String, String>();
+// 初始化或者刷新配置的Map
+public void reloadConfigs() {
     Map<String, String> m = loadConfigFromDB();
-    configs = m;}// 使用configs.getOrDefault("auth.id", "1");
+    configs = m;
+}
+// 使用configs.getOrDefault("auth.id", "1");
 ```
 
 #### 功能强大的内部缓存 - Guava Cache / Caffeine
@@ -263,7 +270,7 @@ ARC算法将最近被访问的数据被存储在LRU队列中，经常被访问�
 
 它是 Guava 中的缓存工具包，是非常简单易用且功能强大的 JVM 内缓存，支持多种缓存过期策略。。
 
-```
+```java
 LoadingCache<String, String> configs = CacheBuilder.newBuilder().maximumSize(1000) // 设置最大大小
         .expireAfterWrite(10, TimeUnit.MINUTES) // 设置过期时间， 10分钟
         .build(
@@ -273,9 +280,10 @@ LoadingCache<String, String> configs = CacheBuilder.newBuilder().maximumSize(100
                     return getConfigFromDB(key);
                 }
                 public Map<String, String> loadAll() throws Exception {
-                return loadConfigFromDB();
-            }
-        });
+                	return loadConfigFromDB();
+            	}
+       	 	}
+    	});
         //CacheLoader.loadAll// 获取某个key的值
         try {
         	return configs.get(key);
@@ -304,8 +312,6 @@ Spring 5 使用 Caffeine 来代替 Guava Cache，应该是从性能的角度考�
 
 Caffeine 的 API 的操作功能和 Guava 是基本保持一致的，并且 Caffeine 为了兼容之前 Guava 的用户，做了一个 Guava 的 Adapter， 也是十分的贴心
 
-
-
 ## 外部缓存
 
 #### 最著名的外部缓存 - Redis / Memcached
@@ -314,21 +320,15 @@ Caffeine 的 API 的操作功能和 Guava 是基本保持一致的，并且 Caff
 
 Redis / Memcached 都是使用内存作为存储，所以性能上要比数据库要好很多，再加上Redis 还支持很多种数据结构，使用起来也挺方便，所以作为很多人的首选。
 
-Redis 确实不错，不过即便是使用内存，也还是需要通过网络来访问，所以网络的性能决定了 Reids 的性能；
+<font color='blue'>Redis 确实不错，不过即便是使用内存，也还是需要通过网络来访问，所以网络的性能决定了 Reids 的性能；</font>
 
 我曾经做过一些性能测试，在万兆网卡的情况下，对于 Key 和 Value 都是长度为 20 Byte 的字符串的 get 和 set 是每秒10w左右的，如果 Key 或者 Value 的长度更大或者使用数据结构，这个会更慢一些；
 
 作为一般的系统来使用已经绰绰有余了，从目前来看，Redis 确实很适合来做系统中的缓存。
 
-
-
-
-
 # Redis 可以用来做什么？
 
 Redis 是互联网技术领域使用最为广泛的存储中间件，它是「**Re**mote **Di**ctionary **S**ervice」的首字母缩写，也就是「远程字典服务」。Redis 以其超高的性能、完美的文档、简洁易懂的源码和丰富的客户端库支持在开源中间件领域广受好评。国内外很多大型互联网公司都在使用 Redis，比如 Twitter、暴雪娱乐、Github、StackOverflow、腾讯、阿里、京东、华为、新浪微博等等，很多中小型公司也都有应用。也可以说，对 Redis 的了解和应用实践已成为当下中高级后端开发者绕不开的必备技能。
-
-
 
 # Redis 基础数据结构
 
@@ -338,15 +338,11 @@ redis在线练习：https://try.redis.io/
 
 redis命令参考：http://doc.redisfans.com/
 
-
-
 ## string (字符串)
 
 字符串 string 是 Redis 最简单的数据结构。Redis 所有的数据结构都是以<font color='red'>唯一的 key 字符串</font>作为名称，然后通过这个唯一 key 值来获取相应的 value 数据。不同类型的数据结构的差异就在于 value 的结构不一样。
 
-![img](https://user-gold-cdn.xitu.io/2018/7/2/16458d666d851a12?imageslim)
-
-字符串结构使用非常广泛，一个常见的用途就是缓存用户信息。我们将用户信息结构体使用 JSON 序列化成字符串，然后将序列化后的字符串塞进 Redis 来缓存。同样，取用户信息会经过一次反序列化的过程。
+字符串结构使用非常广泛，一个常见的用途就是缓存用户信息。我们将用户信息结构体使用 JSON **序列化**成字符串，然后将序列化后的字符串塞进 Redis 来缓存。同样，取用户信息会经过一次**反序列化**的过程。
 
 ### string底层实现
 
@@ -381,7 +377,7 @@ Redis 的字符串是<font color='red'>动态字符串</font>(SDS,simple dynamic
 
 **键值对**
 
-```
+```bash
 > set name codehole
 OK
 > get name
@@ -398,7 +394,7 @@ OK
 
 可以批量对多个字符串进行读写，节省网络耗时开销。
 
-```
+```bash
 > set name1 codehole
 OK
 > set name2 holycoder
@@ -418,7 +414,7 @@ OK
 
 可以对 key 设置过期时间，到点自动删除，这个功能常用来控制缓存的失效时间。
 
-```
+```bash
 > set name codehole
 > get name
 "codehole"
@@ -448,7 +444,7 @@ OK
 
 如果 value 值是一个整数，还可以对它进行自增操作。自增是有范围的，它的范围是 signed long 的最大最小值，超过了这个值，Redis 会报错。
 
-```
+```bash
 > set age 30
 OK
 > incr age
@@ -469,15 +465,9 @@ OK
 
 在我们平时开发过程中，会有一些 bool 型数据需要存取，比如用户一年的签到记录，签了是 1，没签是 0，要记录 365 天。如果使用普通的 key/value，每个用户要记录 365 个，当用户上亿的时候，需要的存储空间是惊人的。
 
-为了解决这个问题，Redis 提供了位图数据结构，这样每天的签到记录只占据一个位，365 天就是 365 个位，46 个字节 (一个稍长一点的字符串) 就可以完全容纳下，这就大大节约了存储空间。
+为了解决这个问题，Redis 提供了位图数据结构，这样每天的签到记录只占据一个位，365 天就是 365 个位，46 个字节 (一个稍长一点的字符串) 就可以完全容纳下，这就**大大节约了存储空间**。
 
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/2/1645926f4520d0ce?imageslim)
-
-
-
-位图不是特殊的数据结构，它的内容其实就是普通的字符串，也就是 byte 数组。我们可以使用普通的 get/set 直接获取和设置整个位图的内容，也可以使用位图操作 getbit/setbit 等将 byte 数组看成「位数组」来处理。
+位图不是特殊的数据结构，它的内容其实就是普通的字符串，也就是 **byte 数组**。我们可以使用普通的 get/set 直接获取和设置整个位图的内容，也可以使用位图操作 getbit/setbit 等将 byte 数组看成「位数组」来处理。
 
 ```bash
 GETBIT key offset #获取第offset位的bit，不存的的比特位返回0。
@@ -487,25 +477,17 @@ BITOP operation destkey key [key] #执行位操作，位操作包含与(AND)、�
 BITPOS key value [start] [end] #查询key中第一次出现value的位置，start和end表示字符的开始和结束位置。
 ```
 
-
-
 ## list (列表)
 
-Redis 的列表相当于 Java 语言里面的 LinkedList，注意它是链表而不是数组。这意味着 list 的插入和删除操作非常快，时间复杂度为 O(1)，但是索引定位很慢，时间复杂度为 O(n)，这点让人非常意外。
+Redis 的列表相当于 Java 语言里面的 LinkedList，注意它**是链表而不是数组**。这意味着 list 的插入和删除操作非常快，时间复杂度为 O(1)，但是索引定位很慢，时间复杂度为 O(n)。
 
-当列表弹出了最后一个元素之后，该数据结构自动被删除，内存被回收。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/2/1645918c2cdf772e?imageslim)
-
-
+当列表**弹出了最后一个元素之后**，该数据结构自动被删除，内存被回收。
 
 Redis 的列表结构常用来做异步队列使用。将需要延后处理的任务结构体序列化成字符串塞进 Redis 的列表，另一个线程从这个列表中轮询数据进行处理。
 
 **右边进左边出：队列**
 
-```
+```bash
 > rpush books python java golang
 (integer) 3
 > llen books
@@ -522,7 +504,7 @@ Redis 的列表结构常用来做异步队列使用。将需要延后处理的�
 
 **右边进右边出：栈**
 
-```
+```bash
 > rpush books python java golang
 (integer) 3
 > rpop books
@@ -543,7 +525,7 @@ ltrim 和字面上的含义不太一样，个人觉得它叫 lretain(保留) 更
 
 index 可以为负数，`index=-1`表示倒数第一个元素，同样`index=-2`表示倒数第二个元素。
 
-```
+```bash
 > rpush books python java golang
 (integer) 3
 > lindex books 1  # O(n) 慎用
@@ -565,12 +547,6 @@ OK
 
 ### 早期列表
 
-redis 早期版本存储 list 列表数据结构使用的是压缩列表 ziplist 和普通的双向链表 linkedlist
-
-![img](https://user-gold-cdn.xitu.io/2018/7/27/164d975cac9559c5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
-
 Redis 早期版本存储 list 列表数据结构使用的是压缩列表 ziplist 和普通的双向链表 linkedlist
 
 > 也就是元素少时用 ziplist，元素多时用 linkedlist。
@@ -590,9 +566,13 @@ Redis 早期版本存储 list 列表数据结构使用的是压缩列表 ziplist
 entry节点没有保存前后节点指针
 
 > previous_entry_length记录了上一entry的长度,用于获取上一entry的数据
-> encoding记录了content所保存数据的类型(<font color='red'>字节数组/整数</font>)与长度,用于获取下一entry的数据
+>
+> - 如果前一节点的长度小于254字节，那么previous_entry__length属性的长度为1字节：前一节点的长度就保存在这一字节里面
+> - 如果前一节点的长度大于等于254字节，那么previous_entry__length属性的长度为5字节：其属性的第一字节会被设置为0xFE（十进制254），而之后的四个字节长度则用于保存前一节点的长度。
+>
+> encoding记录了content所保存数据的类型(<font color='red'>字节数组和整数</font>)与长度,用于获取下一entry的数据
 
-**[连锁更新](https://www.jianshu.com/p/b5d111bee6d9)**
+**[连锁更新](https://blog.csdn.net/weixin_45729809/article/details/123789656)**
 
 新增引起的连锁更新.
 
@@ -662,12 +642,7 @@ struct list {
 
 quicklist 是 ziplist 和 linkedlist 的混合体，它将 linkedlist 按段切分，每一段使用 ziplist 来紧凑存储，多个 ziplist 之间使用双向指针串接起来。
 
-![img](https://user-gold-cdn.xitu.io/2018/7/29/164e3b0b953f2fc7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
-
-```
-
+```c
 struct quicklistNode {
     quicklistNode* prev;
     quicklistNode* next;
@@ -689,8 +664,6 @@ struct quicklist {
 
 上述代码简单地表示了 quicklist 的大致结构。为了进一步节约空间，Redis 还会对 ziplist 进行压缩存储，使用 **LZF 算法**压缩，可以选择压缩深度。quicklist 内部默认单个 ziplist 长度为 8k 字节，超出了这个字节数，就会新起一个 ziplist。ziplist 的长度由配置参数`list-max-ziplist-size`决定。
 
-
-
 ### list运用--延时队列
 
 我们平时习惯于使用 Rabbit-MQ 和 Kafka 作为消息队列中间件，来给应用程序之间增加异步消息传递功能。这两个中间件都是专业的消息队列中间件，特性之多超出了大多数人的理解能力。
@@ -699,17 +672,9 @@ struct quicklist {
 
 有了 Redis，它就可以让我们解脱出来，对于那些只有一组消费者的消息队列，使用 Redis 就可以非常轻松的搞定。Redis 的消息队列不是专业的消息队列，它没有非常多的高级特性，<font color='red'>没有 ack 保证</font>，如果对消息的可靠性有着极致的追求，那么它就不适合使用。
 
-
-
 #### 异步消息队列
 
 Redis 的 list(列表) 数据结构常用来作为异步消息队列使用，使用`rpush/lpush`操作入队列，使用`lpop 和 rpop`来出队列。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/10/1648229e1dbfd776?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
 
 #### 队列空了怎么办？
 
@@ -728,9 +693,9 @@ Thread.sleep(1000)  # java 睡 1s
 
 用上面睡眠的办法可以解决问题。但是有个小问题，那就是睡眠会导致消息的延迟增大。如果只有 1 个消费者，那么这个延迟就是 1s。如果有多个消费者，这个延迟会有所下降，因为每个消费者的睡觉时间是岔开来的。
 
-有没有什么办法能显著降低延迟呢？那就把睡觉的时间缩短点。这种方式当然可以，有更好的解决方案，那就是 blpop/brpop。
+有没有什么办法能显著降低延迟呢？那就把睡觉的时间缩短点。这种方式当然可以，有更好的解决方案，那就是 **blpop/brpop**。
 
-这两个指令的前缀字符`b`代表的是`blocking`，也就是阻塞读。
+这两个指令的前缀字符`b`代表的是`blocking`，也就是**阻塞读**。
 
 阻塞读在队列没有数据的时候，会立即进入休眠状态，一旦数据到来，则立刻醒过来。消息的延迟几乎为零。用`blpop/brpop`替代前面的`lpop/rpop`，就完美解决了上面的问题。
 
@@ -740,19 +705,9 @@ Thread.sleep(1000)  # java 睡 1s
 
 所以编写客户端消费者的时候要小心，注意捕获异常，还要重试。
 
-
-
-
-
 ## hash (字典)
 
-Redis 的字典相当于 Java 语言里面的 HashMap，它是无序字典。内部实现结构上同 Java 的 HashMap 也是一致的，同样的数组 + 链表二维结构。第一维 hash 的数组位置碰撞时，就会将碰撞的元素使用链表串接起来。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/9/1647e419af9e3a87?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
+Redis 的字典相当于 Java 语言里面的 HashMap，它是无序字典。内部实现结构上同 Java 的 HashMap 也是一致的，同样的**数组 + 链表二维结构**。第一维 hash 的数组位置碰撞时，就会将碰撞的元素使用链表串接起来。
 
 ### hash的底层实现
 
@@ -800,12 +755,6 @@ ht[0]用于存储数据,ht[1]用于rehash时临时存储数据.
 **渐进式rehash**
 
 Redis 为了高性能，不能堵塞服务，所以采用了<font color='red'>渐进式 rehash</font> 策略。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/28/164dc873b2a899a8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
 
 渐进式 rehash 会在 rehash 的同时，保留新旧两个 hash 结构，查询时会<font color='red'>同时查询两个 hash 结构</font>，然后在后续的定时任务中以及 hash 操作指令中，循序渐进地将旧 hash 的内容一点点迁移到新的 hash 结构中。当搬迁完成了，就会使用新的hash结构取而代之。
 
@@ -866,12 +815,10 @@ OK
 
 同字符串对象一样，hash 结构中的单个子 key 也可以进行计数，它对应的指令是 `hincrby`，和 `incr` 使用基本一样。
 
-```
+```bash
 > hincrby user-laowang age 1
 (integer) 30
 ```
-
-
 
 ## set (集合)
 
@@ -879,21 +826,15 @@ Redis 的集合相当于 Java 语言里面的 HashSet，它内部的键值对是
 
 <font color='red'>当集合中最后一个元素移除之后，数据结构自动删除，内存被回收</font>。
 
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/2/16458e2da04f1a2d?imageslim)
-
-
-
 ### set底层实现(以整数集合为例)
 
 **整数集合**
 
-<img src="assets/image-20210411135938493.png" alt="image-20210411135938493" style="zoom:50%;" />
+<img src="assets/image-20210411135938493.png" alt="image-20210411135938493" style="zoom:50%;" align='left' />
 
 **encoding**
 
-在整数集合中,encoding为{INTSET_ENC_INT8,INTSET_ENC_INT16,INTSET_ENC_INT32,INTSET_ENC_INT64}之一
+在整数集合中,encoding为`{INTSET_ENC_INT8,INTSET_ENC_INT16,INTSET_ENC_INT32,INTSET_ENC_INT64}`之一
 对应的contents数组保存的是相同数据类型的整数.
 
 ### 升级
@@ -917,21 +858,17 @@ Redis 的集合相当于 Java 语言里面的 HashSet，它内部的键值对是
 
    > 若整数数组前期存储都为短整数类型,没必要初始就分配长数据类型
 
-
-
 **整数数组不支持降级**
 
 > 升级说明整数数组对长数据类型有需求.
 >
 > 升级过程消耗时间和空间,不能频繁进行升级.
 
-
-
 ### redis的set操作
 
 set 结构可以用来存储活动中奖的用户 ID，因为有<font color='cornflowerblue'>去重功能</font>，可以保证同一个用户不会中奖两次。
 
-```
+```bash
 > sadd books python
 (integer) 1
 > sadd books python  #  重复
@@ -952,19 +889,11 @@ set 结构可以用来存储活动中奖的用户 ID，因为有<font color='cor
 "java"
 ```
 
-
-
 ## zset (有序集合)
 
 zset 可能是 Redis 提供的最为特色的数据结构。它类似于 Java 的 SortedSet 和 HashMap 的结合体，一方面它是一个 set，保证了内部 value 的唯一性，另一方面它可以给每个 value 赋予一个 score，代表这个 value 的排序权重。它的内部实现用的是一种叫做「跳跃列表」的数据结构。
 
 <font color='red'>zset 中最后一个 value 被移除后，数据结构自动删除，内存被回收。</font>
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/2/16458f9f679a8bb0?imageslim)
-
-
 
 应用举例：
 
@@ -1012,19 +941,15 @@ zset 还可以用来存储学生的成绩，value 值是学生的 ID，score 是
 
 zset 内部的排序功能是通过「<font color='red'>跳跃列表</font>」数据结构来实现的，它的结构非常特殊，也比较复杂。
 
-因为 zset 要支持随机的插入和删除，所以它不适合使用数组来表示。我们先看一个普通的链表结构。
+因为 zset 要支持随机的插入和删除，所以它不适合使用数组来表示。我们先看一个普通的链表结构。	
 
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/23/164c5a90442cd51a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
+![img](assets/597f6b04952e7876522c7086fca77c65.png)
 
 我们需要这个链表按照 score 值进行排序。这意味着当有新元素需要插入时，要定位到特定位置的插入点，这样才可以继续保证链表是有序的。通常我们会通过二分查找来找到插入点，但是二分查找的对象必须是数组，只有数组才可以支持快速位置定位，链表做不到，那该怎么办？
 
-跳跃列表使用层级制，最下面一层所有的元素都会串起来。然后每隔几个元素挑选出一个代表来，再将这几个代表使用另外一级指针串起来。然后在这些代表里再挑出二级代表，再串起来。最终就形成了金字塔结构。
-
 ### 基本结构
+
+跳跃列表使用**层级制**，最下面一层所有的元素都会串起来。然后每隔几个元素挑选出一个代表来，再将这几个代表使用另外一级指针串起来。然后在这些代表里再挑出二级代表，再串起来。最终就形成了金字塔结构。
 
 zset由跳跃表和字典表组成,两者通过指针共享元素的成员和分值.
 
@@ -1038,15 +963,11 @@ typeof struct zset{
 } zset;
 ```
 
+![img](assets/20190714165242614.png)
 
+上图就是跳跃列表的示意图，图中只画了四层，Redis 的跳跃表共有 64 层，容纳 2^64 个元素应该不成问题。每一个 kv 块对应的结构如下面的代码中的`zslnode`结构，kv header 也是这个结构，只不过 value 字段是 null 值--无效的，score 是 Double.MIN_VALUE，用来垫底的。kv 之间使用指针串起来形成了双向链表结构，它们是 **有序** 排列的，从小到大。不同的 kv 层高可能不一样，层数越高的 kv 越少。同一层的 kv 会使用指针串起来。每一个层元素的遍历都是从 kv header 出发。
 
-![img](https://user-gold-cdn.xitu.io/2018/7/27/164d9f96ed4e1a0d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
-
-上图就是跳跃列表的示意图，图中只画了四层，Redis 的跳跃表共有 64 层，容纳 2^64 个元素应该不成问题。每一个 kv 块对应的结构如下面的代码中的`zslnode`结构，kv header 也是这个结构，只不过 value 字段是 null 值——无效的，score 是 Double.MIN_VALUE，用来垫底的。kv 之间使用指针串起来形成了双向链表结构，它们是 **有序** 排列的，从小到大。不同的 kv 层高可能不一样，层数越高的 kv 越少。同一层的 kv 会使用指针串起来。每一个层元素的遍历都是从 kv header 出发。
-
-```
+```c
 struct zslnode {
   string value;
   double score;
@@ -1065,23 +986,21 @@ struct zsl {
 
 设想如果跳跃列表只有一层会怎样？插入删除操作需要定位到相应的位置节点 (定位到最后一个比「我」小的元素，也就是第一个比「我」大的元素的前一个)，定位的效率肯定比较差，复杂度将会是 O(n)，因为需要挨个遍历。也许你会想到二分查找，但是二分查找的结构只能是有序数组。跳跃列表有了多层结构之后，这个定位的算法复杂度将会降到 O(lg(n))。
 
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/27/164dc52ae7e6444c?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](assets/20190714165242614.png)
 
 
 
-如图所示，我们要定位到那个紫色的 kv，需要从 header 的最高层开始遍历找到第一个节点 (最后一个比「我」小的元素)，然后从这个节点开始降一层再遍历找到第二个节点 (最后一个比「我」小的元素)，然后一直降到最底层进行遍历就找到了期望的节点 (最底层的最后一个比我「小」的元素)。
+如图所示，我们要定位到那个红色圆锥的 kv，需要从 header 的最高层开始遍历找到**第一个节点 (最后一个比「我」小的元素)**，然后从这个节点开始降一层再遍历找到第二个节点 (最后一个比「我」小的元素)，然后一直降到最底层进行遍历就找到了期望的节点 (最底层的最后一个比我「小」的元素)。
 
-我们将中间经过的一系列节点称之为「搜索路径」，它是从最高层一直到最底层的每一层最后一个比「我」小的元素节点列表。
+我们将中间经过的一系列节点称之为**「搜索路径」**，它是从最高层一直到最底层的每一层最后一个比「我」小的元素节点列表。
 
 有了这个搜索路径，我们就可以插入这个新节点了。不过这个插入过程也不是特别简单。因为新插入的节点到底有多少层，得有个算法来分配一下，跳跃列表使用的是随机算法。
 
 ### 随机层数
 
-对于每一个新插入的节点，都需要调用一个随机算法给它分配一个合理的层数。直观上期望的目标是 50% 的 Level1，25% 的 Level2，12.5% 的 Level3，一直到最顶层`2^-63`，因为这里每一层的晋升概率是 50%。
+对于每一个新插入的节点，都需要调用一个随机算法给它分配一个合理的层数。直观上期望的目标是 50% 的 Level1，25% 的 Level2，12.5% 的 Level3，一直到最顶层2<sup>-63</sup>，因为这里每一层的晋升概率是 50%。
 
-```
+```c
 /* Returns a random level for the new skiplist node we are going to create.
  * The return value of this function is between 1 and ZSKIPLIST_MAXLEVEL
  * (both inclusive), with a powerlaw-alike distribution where higher
@@ -1096,7 +1015,7 @@ int zslRandomLevel(void) {
 
 不过 Redis 标准源码中的晋升概率只有 <font color='red'>25%</font>，也就是代码中的 <font color='red'>ZSKIPLIST_P</font> 的值。所以官方的跳跃列表更加的扁平化，层高相对较低，在单个层上需要遍历的节点数量会稍多一点。
 
-遍历时跳跃列表会记录一下当前的最高层数`maxLevel`，遍历时从这个 maxLevel 开始遍历性能就会提高很多。
+遍历时跳跃列表会记录一下**当前的最高层数`maxLevel`**，遍历时从这个 maxLevel 开始遍历性能就会提高很多。
 
 ### 插入过程
 
@@ -1123,8 +1042,7 @@ zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
         while (x->level[i].forward &&
                 (x->level[i].forward->score < score ||
                     (x->level[i].forward->score == score &&
-                    sdscmp(x->level[i].forward->ele,ele) < 0)))
-        {
+                    sdscmp(x->level[i].forward->ele,ele) < 0))){
             rank[i] += x->level[i].span;
             x = x->level[i].forward;
         }
@@ -1188,7 +1106,7 @@ zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
 
 当我们调用 zadd 方法时，如果对应的 value 不存在，那就是插入过程。如果这个 value 已经存在了，只是调整一下 score 的值，那就需要走一个更新的流程。假设这个新的 score 值不会带来排序位置上的改变，那么就不需要调整位置，直接修改元素的 score 值就可以了。但是如果排序位置改变了，那就要调整位置。那该如何调整位置呢？
 
-```
+```java
 /* Remove and re-insert when score changes. */
     if (score != curscore) {
         zskiplistNode *node;
@@ -1207,7 +1125,7 @@ zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
     return 1;
 ```
 
-一个简单的策略就是先删除这个元素，再插入这个元素，需要经过两次路径搜索。Redis 就是这么干的。 不过 Redis 遇到 score 值改变了就直接删除再插入，不会去判断位置是否需要调整，从这点看，Redis 的 zadd 的代码似乎还有优化空间。关于这一点，读者们可以继续讨论。
+**一个简单的策略就是先删除这个元素，再插入这个元素，需要经过两次路径搜索。Redis 就是这么干的**。 不过 Redis 遇到 score 值改变了就直接删除再插入，不会去判断位置是否需要调整，从这点看，Redis 的 zadd 的代码似乎还有优化空间。关于这一点，读者们可以继续讨论。
 
 ### 增删改查的操作异同
 
@@ -1223,7 +1141,7 @@ zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
 
 有一个重要的属性没有提到，那就是 zset 可以获取元素的排名 rank。那这个 rank 是如何算出来的？如果仅仅使用上面的结构，rank 是不能算出来的。Redis 在 skiplist 的 forward 指针上进行了优化，给每一个 forward 指针都增加了 **span 属性**，span 是「跨度」的意思，表示从当前层的当前节点沿着 forward 指针跳到下一个节点中间跳过多少个节点。Redis 在插入删除操作时会小心翼翼地更新 span 值的大小。
 
-```
+```c
 struct zslforward {
   zslnode* item;
   long span;  // 跨度
@@ -1239,8 +1157,6 @@ struct zslnode {
 
 这样当我们要计算一个元素的排名时，只需要将「搜索路径」上的经过的所有节点的跨度 span 值进行叠加就可以算出元素的最终 rank 值。
 
-
-
 延时队列可以通过 Redis 的 zset(有序列表) 来实现。我们将消息序列化成一个字符串作为 zset 的`value`，这个消息的到期处理时间作为`score`。
 
 ## 容器型数据结构的通用规则
@@ -1254,8 +1170,6 @@ list/set/hash/zset 这四种数据结构是容器型数据结构，它们共享�
 2. drop if no elements
 
    如果容器里元素没有了，那么立即删除元素，释放内存。这意味着 lpop 操作到最后一个元素，列表就消失了。
-
-
 
 ## 过期时间
 
@@ -1330,7 +1244,7 @@ redis默认共享0-9999的字符串(redis.h/REDIS_SHARED_INTEGERS)
 
 使用`OBJECT IDLETIME`命令可查询对象的空转时长lru,并不改变对象的lru.
 
-
+> ttl,get都会设置对象的lru为0
 
 # Redis——数据库
 
@@ -1494,7 +1408,7 @@ current_db用于记录activeExpireCycle() 进入哪个expires[*] 执行,若activ
 
 **客户请求超时**
 
-当客户端请求到来时，服务器如果正好进入过期扫描状态，客户端的请求将会等待至少 25ms 后才会进行处理，如果客户端将超时时间设置的比较短，比如 10ms，那么就会出现大量的链接因为超时而关闭，业务端就会出现很多异常。而且这时你还无法从 Redis 的 slowlog 中看到慢查询记录，因为慢查询指的是逻辑处理过程慢，不包含等待时间。
+当客户端请求到来时，服务器如果正好进入过期扫描状态，客户端的请求将会等待至少 25ms 后才会进行处理，如果客户端将超时时间设置的比较短，比如 10ms，那么就会出现大量的链接因为超时而关闭，业务端就会出现很多异常。而且这时你还**无法从 Redis 的 slowlog 中看到慢查询记录，因为慢查询指的是逻辑处理过程慢，不包含等待时间**。
 
 所以业务开发人员一定要注意过期时间，如果有大批量的 key 过期，要给过期时间设置一个随机范围，而不宜全部在同一时间过期，分散过期处理的压力。
 
@@ -1559,15 +1473,26 @@ volatile-xxx 策略只会针对带过期时间的 key 进行淘汰，allkeys-xxx
 
 # Redis—— 线程 IO 模型
 
+## 线程IO模型简介
+
+参考链接：https://blog.csdn.net/qq_34125999/article/details/121365659
+
 **Redis 是个单线程程序**！
 
-高并发的 Redis 中间件怎么可能是单线程？但它就是单线程。没必要瞧不起单线程，除了 Redis 之外，Node.js 也是单线程，Nginx 也是单线程，但是它们都是服务器高性能的典范。
+主要是指Redis的**网络IO**和**键值对读写**是由一个线程来完成的，Redis在处理客户端的请求时包括获取 (socket 读)、解析、执行、内容返回 (socket 写) 等都由一个顺序串行的主线程处理，这就是所谓的“单线程”。这也是Redis对外提供键值存储服务的主要流程。
 
-> （ps：严格讲，Redis 并不是单线程。有后台线程在工作，处理一些较为缓慢的操作，例如无用连接的释放、大key的删除等。client端命令的请求获取 (socket 读)、解析、执行、内容返回 (socket 写) 都是由一个线程处理，因此我们常说的“单线程”指的是处理核心处理的线程只有一个）
+![在这里插入图片描述](assets/87b301f5464343e3846456cba9b1fec0.png)
+
+Redis的其他功能，比如**持久化、异步删除、集群数据同步**等等，其实是由额外的线程执行的。Redis工作线程是单线程的，但是，整个Redis来说，是多线程的。
+
+除了 Redis 之外，Node.js 也是单线程，Nginx 也是单线程，但是它们都是服务器高性能的典范。
 
 **Redis 单线程为什么还能这么快？**
 
-因为它所有的数据都在内存中，所有的运算都是内存级别的运算。正因为 Redis 是单线程，所以要小心使用 Redis 指令，对于那些时间复杂度为 O(n) 级别的指令，一定要谨慎使用，一不小心就可能会导致 Redis 卡顿。
+1. 基于内存操作：Redis 的所有数据都存在内存中，因此所有的运算都是内存级别的，所以他的性能比较高；
+2. 数据结构简单：Redis 的数据结构是专门设计的，而这些简单的数据结构的查找和操作的时间大部分复杂度都是 O(1)，因此性能比较高；
+3. 多路复用和非阻塞 I/O：Redis使用 I/O多路复用功能来监听多个 socket连接客户端，这样就可以使用一个线程连接来处理多个请求，减少线程切换带来的开销，同时也避免了 I/O 阻塞操作;
+4. 避免上下文切换：因为是单线程模型，因此就避免了不必要的上下文切换和多线程竞争
 
 **Redis 单线程如何处理那么多的并发客户端连接？**
 
@@ -1577,12 +1502,6 @@ volatile-xxx 策略只会针对带过期时间的 key 进行淘汰，allkeys-xxx
 
 当我们调用套接字的读写方法，默认它们是阻塞的，比如`read`方法要传递进去一个参数`n`，表示最多读取这么多字节后再返回，如果一个字节都没有，那么线程就会卡在那里，直到新的数据到来或者连接关闭了，`read`方法才可以返回，线程才能继续处理。而`write`方法一般来说不会阻塞，除非内核为套接字分配的写缓冲区已经满了，`write`方法就会阻塞，直到缓存区中有空闲空间挪出来了。
 
-
-
-![img](https://user-gold-cdn.xitu.io/2018/8/26/165739c849e21857?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
-
 非阻塞 IO 在套接字对象上提供了一个选项`Non_Blocking`，当这个选项打开时，读写方法不会阻塞，而是能读多少读多少，能写多少写多少。能读多少取决于内核为套接字分配的读缓冲区内部的数据字节数，能写多少取决于内核为套接字分配的写缓冲区的空闲空间字节数。<font color='cornflowerblue'>读方法和写方法都会通过返回值来告知程序实际读写了多少字节</font>。
 
 有了非阻塞 IO 意味着线程在读写 IO 时可以不必再阻塞了，读写可以瞬间完成然后线程可以继续干别的事了。
@@ -1590,12 +1509,6 @@ volatile-xxx 策略只会针对带过期时间的 key 进行淘汰，allkeys-xxx
 ## 事件轮询 (多路复用)
 
 非阻塞 IO 有个问题，那就是线程要读数据，结果读了一部分就返回了，线程如何知道何时才应该继续读。也就是当数据到来时，线程如何得到通知。写也是一样，如果缓冲区满了，写不完，剩下的数据何时才应该继续写，线程也应该得到通知。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/10/164821ee63cfc36f?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
 
 事件轮询 API 就是用来解决这个问题的，最简单的事件轮询 API 是`select`函数，它是操作系统提供给用户程序的 API。输入是读写描述符列表`read_fds & write_fds`，输出是与之对应的可读可写事件。同时还提供了一个`timeout`参数，如果没有任何事件到来，那么就最多等待`timeout`时间，线程处于阻塞状态。一旦期间有任何事件到来，就可以立即返回。时间过了之后还是没有任何事件到来，也会立即返回。拿到事件后，线程就可以继续挨个处理相应的事件。处理完了继续过来轮询。于是线程就进入了一个死循环，我们把这个死循环称为事件循环，一个循环为一个周期。
 
@@ -1616,308 +1529,12 @@ handle_others()  # 处理其它事情，如定时任务等
 
 **事件轮询 API 就是 Java 语言里面的 NIO 技术**，Java 的 NIO 并不是 Java 特有的技术，其它计算机语言都有这个技术，只不过换了一个词汇，不叫 NIO 而已。（提一句，JDK NIO的BUG，例如臭名昭著的epoll bug，它会导致Selector空轮询，最终导致CPU 100%。产生原因若Selector的轮询结果为空，也没有wakeup或新消息处理，则发生空轮询，CPU使用率100%。Netty解决办法，对Selector()方法中的阻塞定时 select（timeMIllinois）操作的 次数进行统计，每完成一次select操作进行一次计数，若在循环周期内 发生N次空轮询，如果N值大于BUG阈值（默认为512），就进行空轮询BUG处理。）
 
-# Redis —— 持久化
+ **Redis 6**
+在 Redis 6.0 中新增了多线程的功能来提高 I/O 的读写性能，他的主要实现思路是将主线程的 IO 读写任务拆分给一组独立的线程去执行，这样就可以使多个 socket 的读写可以并行化了，采用多路 I/O 复用技术可以让单个线程高效的处理多个连接请求（尽量减少网络IO的时间消耗），将最耗时的Socket的读取、请求解析、写入单独外包出去，剩下的命令执行仍然由主线程串行执行并和内存的数据交互。
 
-**持久化**
+![在这里插入图片描述](assets/3bee0ccac8504ff3984edc344f9cc5bd.png)
 
-> 利用<font color='red'>永久性存储介质</font>将数据进行保存，在特定的时间将保存的数据进行恢复的工作机制称为持久化
-
-Redis 的数据全部在内存里，如果突然宕机，数据就会全部丢失.因此必须有一种机制来<font color='red'>防止Redis数据的意外丢失，确保数据安全性</font>，这种机制就是 Redis 的持久化机制。
-
-Redis 的持久化机制有两种，第一种是**快照**(RDB,redis database)，第二种是 **AOF 日志**
-
-快照是一次全量备份，AOF 日志是连续的增量备份。
-
-> 快照是内存数据的二进制序列化形式，在存储上非常紧凑.
->
->  AOF 日志记录的是内存数据修改的指令记录文本。AOF 日志在长期的运行过程中会变的无比庞大，数据库重启时需要加载 AOF 日志进行指令重放，这个时间就会无比漫长。所以需要定期进行 AOF 重写，给 AOF 日志进行<font color='red'>瘦身</font>。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/7/10/164820eb27b6a97e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-## RDB快照
-
-### RDB配置
-
-`save`指令的执行会阻塞当前Redis服务器，直到当前RDB过程完成为止
-
-`bgsave`指令fork出一个子进程完成持久化过程
-
-**dbfilename dump.rdb**
-说明：设置本地数据库文件名，默认值为 dump.rdb
-经验：通常设置为dump-端口号.rdb
-
- **dir**
-说明：设置存储.rdb文件的路径
-经验：通常设置成存储空间较大的目录中，目录名称data
-**rdbcompression yes**
-说明：设置存储至本地数据库时是否压缩数据，默认为 yes，采用 LZF 压缩
-经验：通常默认为开启状态，如果设置为no，可以节省 CPU 运行时间，但会使存储的文件变大（巨大）
-**rdbchecksum yes**
-说明：设置是否进行RDB文件格式校验，该校验过程在写文件和读文件过程均进行
-经验：通常默认为开启状态，如果设置为no，可以节约读写性过程约10%时间消耗，但是存储一定的数据损坏风险
-
-### 快照原理
-
-我们知道 Redis 是单线程程序，在服务线上请求的同时，Redis 还需要进行内存快照，内存快照要求 Redis 必须进行文件 IO 操作，可文件 IO 操作是不能使用多路复用 API。
-
-这意味着单线程同时在服务线上的请求还要进行文件 IO 操作，文件 IO 操作会严重拖垮服务器请求的性能。还有个**重要的问题是为了不阻塞线上的业务，就需要边持久化边响应客户端请求**。持久化的同时，内存数据结构还在改变，比如一个大型的 hash 字典正在持久化，结果一个请求过来把它给删掉了，可还没持久化完呢，怎么弄？
-
-**Copy On Write**
-
-Redis 使用操作系统的多进程 COW(Copy On Write) 机制来实现快照持久化，这个机制很有意思。
-
-Redis 在持久化时会调用 glibc（是GNU发布的libc库，即c运行库。*glibc*是linux系统中最底层的api） 的函数`fork`产生一个子进程，快照持久化完全交给子进程来处理，父进程继续处理客户端请求。
-
-子进程刚刚产生时，它和父进程共享内存里面的代码段和数据段。这是 Linux 操作系统的机制，为了节约内存资源，所以尽可能让它们共享起来。在进程分离的一瞬间，内存的增长几乎没有明显变化。
-
-用 Python 语言描述进程分离的逻辑如下。`fork`函数会在父子进程同时返回，在父进程里返回子进程的 pid，在子进程里返回零。如果操作系统内存资源不足，pid 就会是负数，表示`fork`失败。
-
-```
-pid = os.fork()
-if pid > 0:
-    handle_client_requests()  # 父进程继续处理客户端请求
-if pid == 0:
-    handle_snapshot_write()  # 子进程处理快照写磁盘
-if pid < 0:
-    # fork error
-```
-
-子进程做数据持久化，它不会修改现有的内存数据结构，它只是对数据结构进行遍历读取，然后序列化写到磁盘中。但是父进程不一样，它必须持续服务客户端请求，然后对内存数据结构进行不间断的修改。
-
-这个时候就会使用操作系统的 COW 机制来进行数据段页面的分离。数据段是由很多操作系统的页面组合而成，<font color='red'>当父进程对其中一个页面的数据进行修改时，会将被共享的页面复制一份分离出来，然后对这个复制的页面进行修改</font>。这时子进程相应的页面是没有变化的，还是进程产生时那一瞬间的数据。
-
-
-
-![img](https://user-gold-cdn.xitu.io/2018/5/18/163711de3e2b6cb8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
-
-随着父进程修改操作的持续进行，越来越多的共享页面被分离出来，内存就会持续增长。但是也不会超过原有数据内存的 2 倍大小。
-
- Redis 实例里<font color='red'>冷数据占的比例往往是比较高</font>的，所以很少会出现所有的页面都会被分离，被分离的往往只有其中一部分页面。每个页面的大小只有 4K，一个 Redis 实例里面一般都会有成千上万的页面。
-
-子进程因为数据没有变化，它能看到的内存里的数据在进程产生的一瞬间就凝固了，再也不会改变，这也是为什么 Redis 的持久化叫「快照」的原因。接下来子进程就可以非常安心的遍历数据了进行序列化写磁盘了。
-
-### RDB的启动
-
-1. save
-
-2. bgsave
-
-3. <font color='red'>自动间隔性保存</font>**save配置**(实际执行的是bgsave)
-
-   > 在conf中配置:save second changes,启动后参数会保留在saveparams中
-   >
-   > second：监控时间范围
-   > changes：监控key的变化量
-   >
-   > 默认:(900,1),(300,10),(60,10000)
-
-   redisServer中保留了dirty和lastsave,用于serverCron计算是否触发了save(满足限定时间范围内key的变化数量达到指定数量即进行持久化)
-
-4. 特殊启动方式
-
-   > 主从同步时全量复制
-   >
-   > 服务器运行过程中重启:debug reload
-   >
-   > 关闭服务器时指定保存数据(未开启aof):shutdown save
-
-### save 命令下的服务器状态
-
-bgsave命令执行期间,服务器会拒绝客户端发送的save和bgsave命令,避免多个进程调用rdbsave,产生竞争条件
-
-bgsave与bgrewriteaof也不能同时进行,虽然同为子进程不会产生竞争,但都会执行大量磁盘写入,影响效率.
-
-> bgsave执行后,bgrewriteaof会等到bgsave执行完后再执行
->
-> bgrewriteaof执行后,bgsave会被拒绝执行
-
-### [RDB文件结构](https://www.imooc.com/article/50264?block_id=tuijian_wz)
-
-<img src="C:/Users/athement/AppData/Roaming/Typora/draftsRecover/assets/image-20210414092014314.png" alt="image-20210414092014314" style="zoom:50%;" />
-
-database中的selectDB为1B的常量,表示之后会读入一个数据库号码,并执行select db_number切换数据库.
-
-若键值对包含过期日期,则过期日期会被保存.EXPIRETIME_MS常量表示接下来读取过期的时间戳.
-
-type说明value的类型和长度.
-
-> 不同的类型和编码,对应不同的type
->
-> 当value长度较短时,保留原数据;当value长度较长时,采用压缩存储.
-
-### RDB文件的分析
-
-Redis自带redis-check-dump工具,使用`od`命令分析RDB文件
-
-```bash
-redis> od -c dump.rdb
-```
-
--c表示以ASCII码输出结果.
-
-### RDB文件的读取
-
-将RDB文件置于Redis安装目录,并启动Redis服务后便会自动读取RDB文件.
-
-> 若服务器开启了AOF持久化功能,那么服务器优先使用AOF文件来还原数据.因为AOF更新频率高,处于最新状态的概率大.
-
-## AOF(主流方式)
-
-### AOF(Append Only File) 原理
-
-AOF 日志存储的是 Redis 服务器的顺序指令序列(<font color='cornflowerblue'>redis命令请求协议格式</font>)，AOF 日志只记录对内存进行修改的指令记录。
-
-假设 AOF 日志记录了自 Redis 实例创建以来所有的修改性指令序列，那么就可以通过对一个空的 Redis 实例顺序执行所有的指令，也就是「**重放**」，来恢复 Redis 当前实例的内存数据结构的状态。
-
-Redis 会在收到客户端修改指令后，进行参数校验进行逻辑处理后，如果没问题，就立即将该指令文本存储到 AOF 日志中，也就是<font color='red'>先执行指令才将日志存盘</font>。这点不同于leveldb、hbase等存储引擎，它们都是先存储日志再做逻辑处理。
-
-Redis 在长期运行的过程中，AOF 的日志会越变越长。如果实例宕机重启，重放整个 AOF 日志会非常耗时，导致长时间 Redis 无法对外提供服务。所以需要对 AOF 日志<font color='red'>瘦身</font>。
-
-### AOF配置
-
-1. appendonly yes|no
-   是否开启AOF持久化功能，默认为不开启状态
-
-2. appendfsync always|everysec|no
-   设置AOF写数据策略
-
-3. appendfilename filenameAOF
-   持久化文件名，默认文件名未appendonly.aof，建议配置为appendonly-端口号.aof
-
-4. dir
-   AOF持久化文件保存路径，与RDB持久化文件保持一致即可
-
-```bash
-redis配置设置命令：redis-cli config  set key value
-```
-
-### fsync
-
-#### 文件事件
-
-redis服务器进程就是一个事件循环(loop),循环中包括文件事件和时间事件
-
-> 文件事件负责接收客户端的命令请求并回复.
->
-> 时间事件负责类似ServerCron这种定时函数的执行
-
-事件循环代码:
-
-```
-def eventLoop{):
-	while True:
-        # 处理文件事件,负责接收客户端的命令请求并回复.
-        # 命令请求可能有新内容追加到aof_buf中.
-		processFileEvents ( )
-		# 处理时间事件
-		processTimeEvents()
-		# 考虑是否将aof_buf的内容写入和同步到aof文件
-		flushAppendOnlyFile()
-```
-
-#### 文件的写入与同步
-
-AOF 日志是以文件的形式存在的，当程序对 AOF 日志文件进行写操作时，实际上是将内容写到了内核为文件描述符分配的一个**内存缓存**中(<font color='red'>写AOF文件</font>)，然后内核会异步将脏数据刷回到磁盘的(<font color='red'>同步AOF文件</font>)。
-
-如果机器突然宕机，AOF 日志内容可能还没有来得及完全刷到磁盘中，这个时候就会出现日志丢失。那该怎么办？
-
-Linux 的`glibc`提供了`fsync(int fd)`函数可以将指定文件的内容强制从内核缓存刷到磁盘。只要 Redis 进程实时调用 fsync 函数就可以保证 aof 日志不丢失。但是 fsync 是一个磁盘 IO 操作，它很慢！如果 Redis 执行一条指令就要 fsync 一次，那么 Redis 高性能的地位就不保了。
-
-**AOF同步数据三种策略(appendfsync)**
-
-flushAppendOnlyFile()每次都会将aof_buf写入到aof文件中,但会根据appendfsync选择不同的同步策略.
-
-1. always(每次）
-   每次写入操作均同步到AOF文件中，数据零误差，性能较低
-2. everysec（周期 1s 是可以配置的）
-   生产环境的服务器每秒将缓冲区中的指令同步到AOF文件中，数据准确性较高，性能较高
-   在系统突然宕机的情况下丢失1秒内的数据,在数据安全性和性能之间做了一个折中，在保持高性能的同时，尽可能使得数据少丢失
-3. no（系统控制）
-   由操作系统控制每次同步到AOF文件的周期，整体过程不可控
-
-**write与fsync**
-write操作会触发延迟写（delayed write）机制，Linux在内核提供页缓冲区来提高硬盘IO性能。write操作在写入系统缓冲区后直接返回。同步硬盘操作依赖于系统调度机制，例如：缓冲区页空间写满或达到特定时间周期。同步文件之前，如果此时系统故障宕机，缓冲区内数据将丢失。 
-
-fsync针对单个文件操作（比如AOF文件），做强制硬盘同步，fsync将阻塞直到写入硬盘完成后返回，保证了数据持久化。
-
-### AOF 重写
-
-Redis 提供了 **bgrewriteaof** 指令用于对 AOF 日志进行瘦身。
-
-> 无需读取原aof文件,开辟一个子进程对服务器当前状态进行遍历转换成一系列 Redis 的操作指令，序列化到新的 AOF 日志文件中。
->
-> 序列化完毕后再将操作期间发生的增量 AOF 缓存日志追加到这个新的 AOF 日志文件中，追加完毕后就立即替代旧的 AOF 日志文件.
-
-**AOF重写作用**
-
-1. 降低磁盘占用量，提高磁盘利用率
-2. 提高持久化效率，降低持久化写时间，提高IO性能
-3. 降低数据恢复用时，提高数据恢复效率
-
-**AOF重写规则**
-
-1. 进程内已超时的数据不再写入文件
-
-2. 忽略无效指令，重写时使用进程内数据直接生成，这样新的AOF文件只保留最终数据的写入命令
-
-   > 如del key1、 hdel key2、srem key3、set key4 111、set key4 222等 
-
-3. 对同一数据的多条写命令合并为一条命令
-
-   > 如lpush list1 a、lpush list1 b、 lpush list1 c 可以转化为：lpush list1 a b c。为防止数据量过大造成客户端缓冲区溢出，对list、set、hash、zset等类型，每条指令最多写入64个元素
-
-**AOF重写方式**
-
-手动重写
-
-```bash
-bgrewriteaof
-```
-
-自动重写(serverCron函数检查)
-
-```bash
-auto-aof-rewrite-min-size size
-当前AOF文件大小 > server.aof_rewrite_min_size(默认为1MB)
-
-auto-aof-rewrite-percentage percentage
-当前AOF文件大小和最后一次AOF重写后的大小之间的比率大于等于指定的增长百分比(默认为1倍，100%)
-```
-
-**重写流程**
-
-服务器开启重写子进程,并开辟aof重写缓存区
-
-服务器接收到客户端命令:
-
-​	1) 执行命令
-​    2) 写入aof缓存区
-​    3) 写入aof重写缓存区
-
-子进程完成AOF缓存区的重写后,发送信号通知父进程,父进程调用信号处理函数(<font color='red'>重写过程只有信号处理函数执行会阻塞</font>):
-
-​	1) 将重写缓冲区的内容追加到新AOF文件
-​    2) 使用新的AOF文件<font color='red'>原子地</font>覆盖原AOF文件()
-
-未执行重写:
-
-<img src="assets/image-20210406223531764.png" alt="image-20210406223531764" style="zoom:50%;" />
-
-执行重写:
-
-> aof重写缓存区在重写子进程启动后就创建.
-
-<img src="assets/image-20210406223952702.png" alt="image-20210406223952702" style="zoom:50%;" />
-
-
-
-## RDB与AOF对比
-
-<img src="redis面试/assets/image-20210406224117934.png" alt="image-20210406224117934" style="zoom:50%;" />
+结合上图可知，网络IO操作就变成多线程化了，其他核心部分仍然是线程安全的，是个不错的折中办法
 
 # 事件
 
@@ -4077,7 +3694,7 @@ Redis中与Lua环境协作的2个组件:
 
 **创建Lua环境**
 
-Redis调用C API函数<font color='cornflowerblue'>lua_open</font>创建一个基本的Lua环境,之后的修改时针对该Lua环境进行的.
+Redis调用CAPI函数<font color='cornflowerblue'>lua_open</font>创建一个基本的Lua环境,之后的修改时针对该Lua环境进行的.
 
 **载入函数库**
 
@@ -4157,7 +3774,7 @@ Redis服务器使用串行化执行redis命令,最多只有一个脚本在Lua环
 
 lua_scripts字典键为Lua脚本的SHA1校验和,值为Lua脚本.
 
-```
+```c
 struct redisServer{
 	//...
 	dict *lua_scripts;

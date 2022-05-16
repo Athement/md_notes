@@ -264,7 +264,7 @@ query分析：
 
 首先对数组进行排序，得到有序数组sortedArr={1,3,4,5,6,8}，之后根据sortedArr构建线段树
 
-<img src="assets/image-20220506162224961.png" alt="image-20220506162224961" style="zoom:50%;" />
+<img src="assets/image-20220510152553674.png" alt="image-20220510152553674" style="zoom:50%;" />
 
 ```java
 public class SegmentTree{
@@ -530,6 +530,59 @@ int query(int x, int y){
 ```
 
 以上操作的时间复杂度**(log<sup>n</sup>)<sup>2</sup>**
+
+## 稀疏表
+
+### 概念
+
+稀疏表常用于查询区间内最值（RMQ），实际上是多个区间的**并操作**
+
+> 以O(nlogn)时间预处理，然后在O(1)时间内执行每个查询
+
+### 操作
+
+以求区间最大值为例
+
+> 求数组[1,3,4,5,6,8]在区间[l,r]的最大值
+
+**预处理**
+
+稀疏表st[i]]\[j]保存了区间[i,i+2<sup>j</sup>)的最大值，并利用以下公式更新st
+
+$st[i][j] = max(st[i][j-1],st[i + 2^{(j-1)})][j-1])$
+
+```java
+public void Init(){
+	for(int i = 0; i < arr.length; ++i) 
+        st[i][0] = arr[i];
+	for(int j = 1; (1<<j) <= arr.length; ++j)
+		for(int i = 0; i + (1<<j) - 1 < arr.length; ++i)
+			st[i][j] = max(st[i][j-1],st[i + (1<<(j-1))][j-1]);
+}
+```
+
+**区间查询**
+
+求解区间[l,r)的最大值，可分为求解区间$max(st[l,l+2^{k}],st[r-2^{k}][r])$,若两个区间重叠，也不影响结果。
+
+```java
+//取2对数 向下取整
+private int log(int x){
+    int i=0;
+    while(x>0){
+        x>>=1;
+	}
+    return i;
+}
+
+int RMQ(int l,int r){
+	int len = r - l + 1;
+	int k = log(len);
+	return Math.max(st[l][k],st[l+(r - (1<<k)) + 1][k]);
+}
+```
+
+
 
 ## 问题记录
 
