@@ -36,7 +36,23 @@ Maven遵循**“约定>>>配置>>>编码”**。这样既减少了工作量，�
 - `mvn test-compile` ：编译测试源代码。
 - `mvn test` ：运行应用程序中的单元测试。
 - `mvn dependency`:对依赖进行操作
-  - `mvn dependency:sources`用于下载jar包对应的source（mvn dependency:sources -DincludeArtifactIds=guava）
+
+  [idea maven不会自动下载依赖的源码](https://www.jianshu.com/p/c92e7e85e47b)，所以要通过命令行来辅助下载
+
+  - 下载当前项目所有依赖的source和javadoc
+
+  > 这个（下载source）
+  >  `mvn dependency:sources`
+  >  或这个（下载source）
+  >  `mvn dependency:sources -DdownloadSources=true`
+  >  或这个（下载javadoc）
+  >  `mvn dependency:sources -DdownloadSources=true -DdownloadJavadocs=true`
+
+  - 下载指定jar包的source
+
+  ```csharp
+  mvn dependency:get -Dartifact=org.thymeleaf:thymeleaf-spring5:3.0.11.RELEASE:jar:sources
+  ```
 - `mvn site` ：生成项目相关信息的网站。
 - `mvn clean` ：<font color='cornflowerblue'>清除项目目录中的生成结果。</font>
 - `mvn package` ：<font color='cornflowerblue'>根据项目生成的 jar/war 等。</font>

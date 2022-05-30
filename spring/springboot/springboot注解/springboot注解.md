@@ -469,8 +469,6 @@ public User queryById(@PathVariable("id") Long id) {
 方法形参：id=1
 ```
 
-
-
 ### Controller方法参数赋值
 
 #### @RequestParam
@@ -495,8 +493,6 @@ public User queryById(@RequestParam("id") Long id) {
 作用：将**POST**请求体参数绑定到控制器的方法参数上，要求参数格式**Content-Type：application/json**
 
 [**结论**]: https://blog.csdn.net/justry_deng/article/details/80972817
-
-
 
 1. **@JsonAlias**注解，实现:json转模型时，使json中的特定key能转化为特定的模型属性;但是模型转json时，
            对应的转换后的key仍然与属性名一致，见：上图示例中的name字段的请求与响应。
@@ -541,8 +537,6 @@ public User queryById(@RequestParam("id") Long id) {
 **注意：**在使用此注解之后不会再走视图处理器
 
 [参考文章]: https://blog.csdn.net/originations/article/details/89492884
-
-
 
 ## spring cloud注解
 
